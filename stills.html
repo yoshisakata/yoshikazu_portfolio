@@ -79,13 +79,13 @@
     display:flex;align-items:center;justify-content:center;overflow:hidden;
     opacity:0;visibility:hidden;transition:opacity .4s var(--ease);padding:clamp(16px,4vw,48px)}
   .lightbox.open{opacity:1;visibility:visible}
-  .lb-track{display:flex;width:100%;height:100%;will-change:transform}
+  .lb-track{display:flex;width:100%;height:100%;will-change:transform;touch-action:none}
   .lb-track.anim{transition:transform .4s var(--ease)}
   .lb-slide{flex:0 0 100%;display:flex;align-items:center;justify-content:center;height:100%}
   .lightbox img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;
     box-shadow:0 20px 60px rgba(0,0,0,.4);
     opacity:0;transform:scale(.97);transition:opacity .35s var(--ease),transform .35s var(--ease);
-    touch-action:pan-y; user-select:none; -webkit-user-drag:none; pointer-events:none}
+    user-select:none; -webkit-user-drag:none; pointer-events:none}
   .lightbox.open .lb-slide.current img{opacity:1;transform:none}
   .lb-close,.lb-prev,.lb-next{position:fixed;background:none;border:0;cursor:pointer;color:#FCFCFA;
     opacity:.7;transition:opacity .25s var(--ease);
@@ -93,13 +93,13 @@
   .lb-close:hover,.lb-prev:hover,.lb-next:hover{opacity:1}
   .lb-close{top:0;right:0;width:clamp(56px,8vw,76px);height:clamp(56px,8vw,76px);z-index:102}
   .lb-close svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4}
-  .lb-prev,.lb-next{top:clamp(56px,8vw,76px);height:calc(100% - clamp(56px,8vw,76px));width:clamp(72px,12vw,140px);z-index:101}
+  .lb-prev,.lb-next{top:clamp(56px,8vw,76px);height:calc(100% - clamp(56px,8vw,76px));width:clamp(96px,18vw,200px);z-index:101}
   .lb-prev{left:0;justify-content:flex-start;padding-left:clamp(8px,2vw,24px)}
   .lb-next{right:0;justify-content:flex-end;padding-right:clamp(8px,2vw,24px)}
   .lb-prev svg,.lb-next svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.2}
   @media(max-width:680px){
     .lb-close{width:56px;height:56px}
-    .lb-prev,.lb-next{top:56px;height:calc(100% - 56px);width:clamp(56px,18vw,90px)}
+    .lb-prev,.lb-next{top:56px;height:calc(100% - 56px);width:clamp(72px,28vw,130px)}
     .lb-prev{padding-left:6px}
     .lb-next{padding-right:6px}
     .lb-prev svg,.lb-next svg{width:24px;height:24px}
@@ -297,9 +297,10 @@
     lb.classList.remove('open');
     document.body.style.overflow='';
   }
+  let justDragged=false; // ドラッグ直後は矢印ボタンのclickを抑制するためのフラグ
   document.getElementById('lbClose').addEventListener('click',closeLightbox);
-  document.getElementById('lbPrev').addEventListener('click',e=>{e.stopPropagation();showLb(lbIndex-1)});
-  document.getElementById('lbNext').addEventListener('click',e=>{e.stopPropagation();showLb(lbIndex+1)});
+  document.getElementById('lbPrev').addEventListener('click',e=>{ e.stopPropagation(); if(justDragged){justDragged=false;return;} showLb(lbIndex-1); });
+  document.getElementById('lbNext').addEventListener('click',e=>{ e.stopPropagation(); if(justDragged){justDragged=false;return;} showLb(lbIndex+1); });
   lb.addEventListener('click',e=>{ if(e.target===lb) closeLightbox(); });
   document.addEventListener('keydown',e=>{
     if(!lb.classList.contains('open')) return;
@@ -308,8 +309,9 @@
     if(e.key==='ArrowRight') showLb(lbIndex+1);
   });
 
-  /* ドラッグ/スワイプ: 指の動きにトラックがリアルタイム追従し、離した位置で次/前へスナップ or 元へ戻る */
-  let dragging=false, dragStartX=0, dragStartY=0, dragDX=0, lockedAxis=null;
+  /* ドラッグ/スワイプ: 指の動きにトラックがリアルタイム追従し、離した位置で次/前へスナップ or 元へ戻る
+     矢印ボタン(.lb-prev/.lb-next)の裏側から始まったタッチでも拾えるよう、lightbox全体にイベントをバインドする */
+  let dragging=false, dragStartX=0, dragStartY=0, dragDX=0, lockedAxis=null, cachedSW=0, rafPending=false;
   function slotWidth(){
     // .lb-slideは flex:0 0 100% なので、現在のスロット要素自身の実測幅が正の基準値になる
     return track.children[0].getBoundingClientRect().width;
@@ -320,7 +322,13 @@
   }
   function onDragStart(x,y){
     dragging=true; dragStartX=x; dragStartY=y; dragDX=0; lockedAxis=null;
-    setTrackX(-slotWidth(),false); // 中央(current)スロットの位置を基準にする
+    cachedSW=slotWidth(); // ドラッグ中は再計測せずキャッシュして滑らかさを優先
+    setTrackX(-cachedSW,false); // 中央(current)スロットの位置を基準にする
+  }
+  function applyDragFrame(){
+    rafPending=false;
+    if(!dragging) return;
+    setTrackX(-cachedSW+dragDX,false);
   }
   function onDragMove(x,y){
     if(!dragging) return;
@@ -330,39 +338,46 @@
     }
     if(lockedAxis!=='x') return;
     dragDX=dx;
-    setTrackX(-slotWidth()+dx,false);
+    if(!rafPending){ rafPending=true; requestAnimationFrame(applyDragFrame); }
     return true; // x方向ドラッグ中であることを呼び出し元に伝える
   }
   function onDragEnd(){
     if(!dragging) return;
     dragging=false;
-    const sw=slotWidth();
-    const threshold=Math.max(60,sw*0.18);
+    const sw=cachedSW||slotWidth();
+    const threshold=Math.max(50,sw*0.14);
     if(lockedAxis==='x' && Math.abs(dragDX)>threshold){
+      justDragged=true; // 一定以上動いた場合はタップ(ボタンclick)を抑制
+      setTimeout(()=>{ justDragged=false; },400); // clickが発火しなかった場合に備えて確実にリセット
       const dir=dragDX<0?1:-1; // 左ドラッグ→次へ
       track.classList.add('anim');
       setTrackX(-sw - dir*sw, true);
-      setTimeout(()=>{ showLb(lbIndex+dir); setTrackX(-slotWidth(),false); },380);
+      setTimeout(()=>{ showLb(lbIndex+dir); setTrackX(-slotWidth(),false); },320);
+    }else if(lockedAxis==='x' && Math.abs(dragDX)>10){
+      justDragged=true; // 閾値未満でも軽く動いた場合はclickと衝突しないよう抑制してスナップバックのみ
+      setTimeout(()=>{ justDragged=false; },400); // clickが発火しなかった場合に備えて確実にリセット
+      setTrackX(-sw,true);
     }else{
-      setTrackX(-sw,true); // 元の位置にスナップバック
+      setTrackX(-sw,true); // ほぼ動いていない場合はタップ扱い(ボタンclickをそのまま通す)
     }
     lockedAxis=null;
   }
   // マウスドラッグ(デスクトップでも同じ操作感に)
-  track.addEventListener('mousedown',e=>{ onDragStart(e.clientX,e.clientY); e.preventDefault(); });
+  lb.addEventListener('mousedown',e=>{ onDragStart(e.clientX,e.clientY); });
   window.addEventListener('mousemove',e=>{ if(dragging) onDragMove(e.clientX,e.clientY); });
   window.addEventListener('mouseup',()=>{ if(dragging) onDragEnd(); });
-  // タッチ操作
-  track.addEventListener('touchstart',e=>{
+  // タッチ操作(矢印ボタンの裏側から始まっても拾えるようlightbox全体で監視)
+  lb.addEventListener('touchstart',e=>{
     if(!e.touches || e.touches.length!==1) return;
     onDragStart(e.touches[0].clientX,e.touches[0].clientY);
   },{passive:true});
-  track.addEventListener('touchmove',e=>{
+  lb.addEventListener('touchmove',e=>{
     if(!e.touches || e.touches.length!==1) return;
     const lockedX=onDragMove(e.touches[0].clientX,e.touches[0].clientY);
     if(lockedX && e.cancelable) e.preventDefault();
   },{passive:false});
-  track.addEventListener('touchend',()=>{ onDragEnd(); },{passive:true});
+  lb.addEventListener('touchend',()=>{ onDragEnd(); },{passive:true});
+  lb.addEventListener('touchcancel',()=>{ onDragEnd(); },{passive:true});
 </script>
 </body>
 </html>
