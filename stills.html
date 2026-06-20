@@ -72,6 +72,29 @@
     body.open .burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
   }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.item{opacity:1;transform:none}}
+
+  .item .ph{cursor:zoom-in}
+  .lightbox{position:fixed;inset:0;z-index:100;background:rgba(22,21,19,.96);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;visibility:hidden;transition:opacity .4s var(--ease);padding:clamp(16px,4vw,48px)}
+  .lightbox.open{opacity:1;visibility:visible}
+  .lightbox img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;
+    box-shadow:0 20px 60px rgba(0,0,0,.4);
+    opacity:0;transform:scale(.97);transition:opacity .35s var(--ease),transform .35s var(--ease)}
+  .lightbox.open img{opacity:1;transform:none}
+  .lb-close,.lb-prev,.lb-next{position:fixed;background:none;border:0;cursor:pointer;color:#FCFCFA;
+    opacity:.7;transition:opacity .25s var(--ease);z-index:101;padding:14px}
+  .lb-close:hover,.lb-prev:hover,.lb-next:hover{opacity:1}
+  .lb-close{top:clamp(10px,2vw,28px);right:clamp(10px,2vw,28px)}
+  .lb-close svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4}
+  .lb-prev,.lb-next{top:50%;transform:translateY(-50%)}
+  .lb-prev{left:clamp(4px,1.5vw,20px)}
+  .lb-next{right:clamp(4px,1.5vw,20px)}
+  .lb-prev svg,.lb-next svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.2}
+  @media(max-width:680px){
+    .lb-prev,.lb-next{padding:10px}
+    .lb-prev svg,.lb-next svg{width:22px;height:22px}
+  }
 </style>
 </head>
 <body>
@@ -101,6 +124,13 @@
     <div class="f-meta"><span>© Yoshikazu Sakata</span></div>
   </footer>
 </main>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lb-close" id="lbClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+  <button class="lb-prev" id="lbPrev" aria-label="Previous"><svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8"/></svg></button>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-next" id="lbNext" aria-label="Next"><svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8"/></svg></button>
+</div>
 
 <script>
   const works=[
@@ -207,11 +237,17 @@
     return a;
   }
   const g=document.getElementById('work');
-  shuffle(works).forEach((w,i)=>{
+  const displayed=shuffle(works); // ライトボックスでの前後移動用に表示順を保持
+  const imgList=displayed.filter(w=>w.img).map(w=>w.img);
+  displayed.forEach((w,i)=>{
     const el=document.createElement('div');el.className='item';
     const tone=tones[i%tones.length];
     const inner=w.img?`<img src="${w.img}" alt="${w.t||''}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
     el.innerHTML=`<div class="ph" style="${w.img?'':`background:${tone}`}">${inner}</div>`;
+    if(w.img){
+      const lbIndex=imgList.indexOf(w.img);
+      el.querySelector('.ph').addEventListener('click',()=>openLightbox(lbIndex));
+    }
     g.appendChild(el);
   });
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
@@ -219,6 +255,34 @@
   const b=document.getElementById('burger');
   b.onclick=()=>document.body.classList.toggle('open');
   document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>document.body.classList.remove('open')));
+
+  /* ライトボックス */
+  const lb=document.getElementById('lightbox');
+  const lbImg=document.getElementById('lbImg');
+  let lbIndex=0;
+  function showLb(i){
+    lbIndex=(i+imgList.length)%imgList.length;
+    lbImg.src=imgList[lbIndex];
+  }
+  function openLightbox(i){
+    showLb(i);
+    lb.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeLightbox(){
+    lb.classList.remove('open');
+    document.body.style.overflow='';
+  }
+  document.getElementById('lbClose').addEventListener('click',closeLightbox);
+  document.getElementById('lbPrev').addEventListener('click',e=>{e.stopPropagation();showLb(lbIndex-1)});
+  document.getElementById('lbNext').addEventListener('click',e=>{e.stopPropagation();showLb(lbIndex+1)});
+  lb.addEventListener('click',e=>{ if(e.target===lb) closeLightbox(); });
+  document.addEventListener('keydown',e=>{
+    if(!lb.classList.contains('open')) return;
+    if(e.key==='Escape') closeLightbox();
+    if(e.key==='ArrowLeft') showLb(lbIndex-1);
+    if(e.key==='ArrowRight') showLb(lbIndex+1);
+  });
 </script>
 </body>
 </html>
