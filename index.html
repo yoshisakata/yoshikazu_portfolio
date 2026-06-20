@@ -37,10 +37,9 @@
   /* ---------- showreel ---------- */
   .reel{position:relative;width:100%;background:#0e0d0b}
   .reel::before{content:"";display:block;padding-top:56.25%}
-  .reel iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
-  .reel .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-    opacity:1;transition:opacity .8s var(--ease);pointer-events:none}
-  .reel.playing .poster{opacity:0}
+  .reel iframe{position:absolute;inset:0;width:100%;height:100%;border:0;
+    opacity:0;transition:opacity .8s var(--ease)}
+  .reel.playing iframe{opacity:1}
   .reel .veil{position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(8,7,5,.22),rgba(8,7,5,0) 38%,rgba(8,7,5,.4) 100%)}
   .reel .statement{position:absolute;left:50%;bottom:clamp(22px,5vw,48px);transform:translateX(-50%);
@@ -60,12 +59,10 @@
   .film.in{opacity:1;transform:none}
   .film .thumb{position:relative;overflow:hidden;background:var(--frame)}
   .film .thumb::before{content:"";display:block;padding-top:56.25%}
-  .film .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.5s var(--ease)}
-  .film:hover .thumb img{transform:scale(1.03)}
+  .film .thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .film .thumb .play{position:absolute;inset:0;display:grid;place-items:center}
   .film .thumb .play i{width:56px;height:56px;border:1px solid rgba(255,255,255,.85);border-radius:50%;display:grid;place-items:center;
-    background:rgba(20,18,15,.12);backdrop-filter:blur(2px);transition:.45s var(--ease)}
-  .film:hover .thumb .play i{background:rgba(20,18,15,.3);transform:scale(1.07)}
+    background:rgba(20,18,15,.12);backdrop-filter:blur(2px)}
   .film .thumb .play i::after{content:"";margin-left:3px;border-left:10px solid #fff;border-top:6px solid transparent;border-bottom:6px solid transparent}
   .film .thumb .mk{position:absolute;left:14px;top:13px;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.55)}
   .cap{margin-top:14px}
@@ -132,7 +129,6 @@
 
 <main>
   <section class="reel" id="reel">
-    <img class="poster" id="reelPoster" alt="">
     <iframe id="reelFrame" src="https://player.vimeo.com/video/1184541132?background=1&autoplay=1&loop=1&muted=1&dnt=1"
             allow="autoplay; fullscreen" title="Showreel 2026"></iframe>
     <div class="veil"></div>
@@ -159,18 +155,10 @@
 </div>
 
 <script>
-  /* ---- ヒーロー動画: 最初のフレームをポスターとして表示し、再生開始でクロスフェード ---- */
+  /* ---- ヒーロー動画: 読み込み中は背景色のまま、再生開始でフェードイン ---- */
   (function(){
     const reel=document.getElementById('reel');
     const frame=document.getElementById('reelFrame');
-    const poster=document.getElementById('reelPoster');
-    const vimeoUrl=frame.src.split('?')[0]; // https://player.vimeo.com/video/{id}
-    const videoId=vimeoUrl.split('/').pop();
-    // VimeoのoEmbed経由でサムネイル(最初のフレームに近い静止画)を取得
-    fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/${videoId}`)
-      .then(r=>r.ok?r.json():null)
-      .then(data=>{ if(data && data.thumbnail_url){ poster.src=data.thumbnail_url; } })
-      .catch(()=>{});
     if(window.Vimeo && window.Vimeo.Player){
       const player=new Vimeo.Player(frame);
       player.on('play',()=>{ reel.classList.add('playing'); });
@@ -185,6 +173,7 @@
   })();
 </script>
 <script>
+
   /* 各作品の YouTube動画IDに差し替え(限定公開でOK)。thumb:"https://.../cover.jpg" でサムネ上書き可
      ★追加順:新しい作品はこの配列の先頭に追加してください → 一番上(左上)に表示されます
      youtube: "動画ID" のみ指定(例: "dQw4w9WgXcQ")。URLまるごとではなくIDだけでOK */
