@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://player.vimeo.com/api/player.js"></script>
 <style>
   :root{
     --paper:#FCFCFA;--ink:#161513;--muted:#9C988F;--line:#E8E5DE;--frame:#F0EEE8;
@@ -36,7 +37,9 @@
   /* ---------- showreel ---------- */
   .reel{position:relative;width:100%;background:#0e0d0b}
   .reel::before{content:"";display:block;padding-top:56.25%}
-  .reel iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .reel iframe{position:absolute;inset:0;width:100%;height:100%;border:0;
+    opacity:0;transition:opacity .8s var(--ease)}
+  .reel.playing iframe{opacity:1}
   .reel .veil{position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(8,7,5,.22),rgba(8,7,5,0) 38%,rgba(8,7,5,.4) 100%)}
   .reel .statement{position:absolute;left:50%;bottom:clamp(22px,5vw,48px);transform:translateX(-50%);
@@ -88,6 +91,24 @@
     body.open .burger span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
   }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.film{opacity:1;transform:none}}
+
+  /* ---------- video modal (YouTube unlisted playback) ---------- */
+  .vmodal{position:fixed;inset:0;z-index:100;background:rgba(14,13,11,.96);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;visibility:hidden;transition:opacity .4s var(--ease);padding:clamp(16px,4vw,64px)}
+  .vmodal.open{opacity:1;visibility:visible}
+  .vmodal .vwrap{position:relative;width:100%;max-width:1100px;background:#000;
+    opacity:0;transform:scale(.97);transition:opacity .35s var(--ease),transform .35s var(--ease)}
+  .vmodal .vwrap::before{content:"";display:block;padding-top:56.25%}
+  .vmodal.open .vwrap{opacity:1;transform:none}
+  .vmodal iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  .vm-close{position:fixed;top:clamp(10px,2vw,28px);right:clamp(10px,2vw,28px);background:none;border:0;cursor:pointer;
+    color:#FCFCFA;opacity:.7;transition:opacity .25s var(--ease);z-index:101;padding:14px}
+  .vm-close:hover{opacity:1}
+  .vm-close svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4}
+  /* 再生ボタンはカスタムデザインのまま、cursor:pointerでYouTube標準カーソルを上書き */
+  .film .thumb{cursor:pointer}
+  .film .thumb .play i{cursor:pointer}
 </style>
 </head>
 <body>
@@ -107,8 +128,8 @@
 </header>
 
 <main>
-  <section class="reel">
-    <iframe src="https://player.vimeo.com/video/1184541132?background=1&autoplay=1&loop=1&muted=1&dnt=1"
+  <section class="reel" id="reel">
+    <iframe id="reelFrame" src="https://player.vimeo.com/video/1184541132?background=1&autoplay=1&loop=1&muted=1&dnt=1"
             allow="autoplay; fullscreen" title="Showreel 2026"></iframe>
     <div class="veil"></div>
     <p class="statement">Observing Light, Space and Human Stories</p>
@@ -128,32 +149,84 @@
   </footer>
 </main>
 
+<div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-label="Video player">
+  <button class="vm-close" id="vmClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+  <div class="vwrap" id="vwrap"></div>
+</div>
+
 <script>
-  /* 各作品の Vimeo URL に差し替え。thumb:"https://.../cover.jpg" でサムネ指定可
-     ★追加順:新しい作品はこの配列の先頭に追加してください → 一番上(左上)に表示されます */
+  /* ---- ヒーロー動画: 読み込み中は背景色のまま、再生開始でフェードイン ---- */
+  (function(){
+    const reel=document.getElementById('reel');
+    const frame=document.getElementById('reelFrame');
+    if(window.Vimeo && window.Vimeo.Player){
+      const player=new Vimeo.Player(frame);
+      player.on('play',()=>{ reel.classList.add('playing'); });
+      player.on('bufferend',()=>{ reel.classList.add('playing'); });
+      // ループ指定はURLパラメータで設定済みだが、念のためendedでも再生し直す保険をかける
+      player.on('ended',()=>{ player.play(); });
+      // 万一'play'イベントが拾えない場合の保険(数秒後に強制フェード)
+      setTimeout(()=>reel.classList.add('playing'), 4000);
+    }else{
+      setTimeout(()=>reel.classList.add('playing'), 1200);
+    }
+  })();
+</script>
+<script>
+
+  /* 各作品の YouTube動画IDに差し替え(限定公開でOK)。thumb:"https://.../cover.jpg" でサムネ上書き可
+     ★追加順:新しい作品はこの配列の先頭に追加してください → 一番上(左上)に表示されます
+     youtube: "動画ID" のみ指定(例: "dQw4w9WgXcQ")。URLまるごとではなくIDだけでOK */
   const films=[
-    {t:"岡谷工務店 — Brand Film",  c:"Commercial", vimeo:"https://vimeo.com/REPLACE_ID1"},
-    {t:"Rokkosan Wedding",        c:"Wedding",    vimeo:"https://vimeo.com/REPLACE_ID2"},
-    {t:"Within the Light",        c:"Short Film", vimeo:"https://vimeo.com/REPLACE_ID3"},
-    {t:"Shop — Story",            c:"Commercial", vimeo:"https://vimeo.com/REPLACE_ID4"},
-    {t:"Reception — Document",    c:"Wedding",    vimeo:"https://vimeo.com/REPLACE_ID5"},
-    {t:"Interview",               c:"Commercial", vimeo:"https://vimeo.com/REPLACE_ID6"}
+    {t:"岡谷工務店 — Brand Film",  c:"Commercial", youtube:"REPLACE_ID1"},
+    {t:"Rokkosan Wedding",        c:"Wedding",    youtube:"REPLACE_ID2"},
+    {t:"Within the Light",        c:"Short Film", youtube:"REPLACE_ID3"},
+    {t:"Shop — Story",            c:"Commercial", youtube:"REPLACE_ID4"},
+    {t:"Reception — Document",    c:"Wedding",    youtube:"REPLACE_ID5"},
+    {t:"Interview",               c:"Commercial", youtube:"REPLACE_ID6"}
   ];
   const tones=["#DDE0DB","#E1DBD3","#DADCE1","#E3DED5","#DBE0DD","#E1DDD4"];
   const wrap=document.getElementById('films');
   films.forEach((f,i)=>{
-    const a=document.createElement('a');a.className='film';a.href=f.vimeo;a.target="_blank";a.rel="noopener";
+    const a=document.createElement('div');a.className='film';
     const tone=tones[i%tones.length];
-    const cover=f.thumb?`<img src="${f.thumb}" alt="${f.t}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
-    a.innerHTML=`<div class="thumb" style="${f.thumb?'':`background:${tone}`}">${cover}<div class="play"><i></i></div></div>
+    const thumbUrl=f.thumb||`https://i.ytimg.com/vi/${f.youtube}/maxresdefault.jpg`;
+    const cover=f.youtube?`<img src="${thumbUrl}" alt="${f.t}" data-yid="${f.youtube}" data-has-thumb="${f.thumb?'1':'0'}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
+    a.innerHTML=`<div class="thumb" style="${f.youtube?'':`background:${tone}`}">${cover}<div class="play"><i></i></div></div>
       <div class="cap"><span class="t">${f.t}</span></div>`;
+    a.querySelector('.thumb').addEventListener('click',()=>openVideo(f.youtube));
     wrap.appendChild(a);
+  });
+  /* maxresdefaultが未生成の動画は120x90のプレースホルダーが返るため、hqdefaultへ自動フォールバック */
+  document.querySelectorAll('.film img[data-yid]').forEach(img=>{
+    img.addEventListener('load',function(){
+      if(this.dataset.hasThumb==='0' && this.naturalWidth===120 && this.naturalHeight===90){
+        this.src=`https://i.ytimg.com/vi/${this.dataset.yid}/hqdefault.jpg`;
+      }
+    });
   });
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.14});
   document.querySelectorAll('.film').forEach((f,i)=>{f.style.transitionDelay=(i%2)*65+'ms';io.observe(f)});
   const b=document.getElementById('burger');
   b.onclick=()=>document.body.classList.toggle('open');
   document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>document.body.classList.remove('open')));
+
+  /* ---- 作品動画モーダル(YouTube限定公開を埋め込み再生) ---- */
+  const vmodal=document.getElementById('vmodal');
+  const vwrap=document.getElementById('vwrap');
+  function openVideo(id){
+    vwrap.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0" title="film" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+    vmodal.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeVideo(){
+    vmodal.classList.remove('open');
+    vwrap.innerHTML=''; // 再生停止のため埋め込みごと破棄
+    document.body.style.overflow='';
+  }
+  document.getElementById('vmClose').addEventListener('click',closeVideo);
+  vmodal.addEventListener('click',e=>{ if(e.target===vmodal) closeVideo(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && vmodal.classList.contains('open')) closeVideo(); });
 </script>
 </body>
 </html>
