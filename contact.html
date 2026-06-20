@@ -36,6 +36,10 @@
   .wrap{max-width:640px;margin:0 auto;padding:clamp(64px,10vh,110px) var(--gutter) clamp(70px,10vh,110px)}
   .lbl{font-size:10.5px;letter-spacing:.4em;text-transform:uppercase;color:var(--muted)}
   .intro{font-family:var(--jp);font-weight:300;font-size:12.5px;line-height:2.2;color:var(--ink);margin-top:22px;max-width:100%}
+  .intro .intro-l2{display:inline}
+  @media(max-width:680px){
+    .intro .intro-l2{display:block}
+  }
 
   form{margin-top:clamp(44px,7vw,64px)}
   .field{margin-top:30px}
@@ -100,7 +104,7 @@
 <main>
   <div class="wrap">
     <span class="lbl">Contact</span>
-    <p class="intro">撮影のご依頼やご相談がございましたら、以下のフォームよりお気軽にお問い合わせください。</p>
+    <p class="intro"><span class="intro-l1">ご依頼やご相談がございましたら、</span><span class="intro-l2">以下のフォームよりお気軽にお問い合わせください。</span></p>
 
     <form id="inquiry">
       <div class="field">
