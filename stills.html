@@ -73,27 +73,33 @@
   }
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.item{opacity:1;transform:none}}
 
-  .item .ph{cursor:zoom-in}
+  .item .ph{cursor:pointer}
+  .item .ph{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="white" stroke-width="1.2" opacity="0.9"/><line x1="20" y1="14" x2="20" y2="26" stroke="white" stroke-width="1.2" opacity="0.9"/><line x1="14" y1="20" x2="26" y2="20" stroke="white" stroke-width="1.2" opacity="0.9"/></svg>') 20 20, zoom-in}
   .lightbox{position:fixed;inset:0;z-index:100;background:rgba(22,21,19,.96);
     display:flex;align-items:center;justify-content:center;
     opacity:0;visibility:hidden;transition:opacity .4s var(--ease);padding:clamp(16px,4vw,48px)}
   .lightbox.open{opacity:1;visibility:visible}
   .lightbox img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;
     box-shadow:0 20px 60px rgba(0,0,0,.4);
-    opacity:0;transform:scale(.97);transition:opacity .35s var(--ease),transform .35s var(--ease)}
+    opacity:0;transform:scale(.97);transition:opacity .35s var(--ease),transform .35s var(--ease);
+    touch-action:pan-y; user-select:none; -webkit-user-drag:none}
   .lightbox.open img{opacity:1;transform:none}
   .lb-close,.lb-prev,.lb-next{position:fixed;background:none;border:0;cursor:pointer;color:#FCFCFA;
-    opacity:.7;transition:opacity .25s var(--ease);z-index:101;padding:14px}
+    opacity:.7;transition:opacity .25s var(--ease);z-index:101;
+    display:flex;align-items:center;justify-content:center}
   .lb-close:hover,.lb-prev:hover,.lb-next:hover{opacity:1}
-  .lb-close{top:clamp(10px,2vw,28px);right:clamp(10px,2vw,28px)}
+  .lb-close{top:0;right:0;width:clamp(56px,8vw,76px);height:clamp(56px,8vw,76px)}
   .lb-close svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4}
-  .lb-prev,.lb-next{top:50%;transform:translateY(-50%)}
-  .lb-prev{left:clamp(4px,1.5vw,20px)}
-  .lb-next{right:clamp(4px,1.5vw,20px)}
-  .lb-prev svg,.lb-next svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.2}
+  .lb-prev,.lb-next{top:0;height:100%;width:clamp(72px,12vw,140px)}
+  .lb-prev{left:0;justify-content:flex-start;padding-left:clamp(8px,2vw,24px)}
+  .lb-next{right:0;justify-content:flex-end;padding-right:clamp(8px,2vw,24px)}
+  .lb-prev svg,.lb-next svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.2}
   @media(max-width:680px){
-    .lb-prev,.lb-next{padding:10px}
-    .lb-prev svg,.lb-next svg{width:22px;height:22px}
+    .lb-prev,.lb-next{width:clamp(56px,18vw,90px)}
+    .lb-prev{padding-left:6px}
+    .lb-next{padding-right:6px}
+    .lb-prev svg,.lb-next svg{width:24px;height:24px}
+    .lb-close{width:56px;height:56px}
   }
 </style>
 </head>
@@ -283,6 +289,25 @@
     if(e.key==='ArrowLeft') showLb(lbIndex-1);
     if(e.key==='ArrowRight') showLb(lbIndex+1);
   });
+  /* スマホでのスワイプ操作(左右スワイプで前後の写真へ) */
+  let touchStartX=0, touchStartY=0, touchMoved=false;
+  lb.addEventListener('touchstart',e=>{
+    if(!e.touches || e.touches.length!==1) return;
+    touchStartX=e.touches[0].clientX;
+    touchStartY=e.touches[0].clientY;
+    touchMoved=false;
+  },{passive:true});
+  lb.addEventListener('touchmove',()=>{ touchMoved=true; },{passive:true});
+  lb.addEventListener('touchend',e=>{
+    if(!touchMoved || !e.changedTouches || e.changedTouches.length!==1) return;
+    const dx=e.changedTouches[0].clientX-touchStartX;
+    const dy=e.changedTouches[0].clientY-touchStartY;
+    // 横方向の移動が縦方向より十分大きい場合のみスワイプとして判定(縦スクロールと誤認しない)
+    if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)*1.5){
+      if(dx<0) showLb(lbIndex+1); // 左スワイプ→次へ
+      else showLb(lbIndex-1);     // 右スワイプ→前へ
+    }
+  },{passive:true});
 </script>
 </body>
 </html>

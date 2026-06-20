@@ -202,11 +202,19 @@
     const a=document.createElement('div');a.className='film';
     const tone=tones[i%tones.length];
     const thumbUrl=f.thumb||`https://i.ytimg.com/vi/${f.youtube}/maxresdefault.jpg`;
-    const cover=f.youtube?`<img src="${thumbUrl}" alt="${f.t}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
+    const cover=f.youtube?`<img src="${thumbUrl}" alt="${f.t}" data-yid="${f.youtube}" data-has-thumb="${f.thumb?'1':'0'}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
     a.innerHTML=`<div class="thumb" style="${f.youtube?'':`background:${tone}`}">${cover}<div class="play"><i></i></div></div>
       <div class="cap"><span class="t">${f.t}</span></div>`;
     a.querySelector('.thumb').addEventListener('click',()=>openVideo(f.youtube));
     wrap.appendChild(a);
+  });
+  /* maxresdefaultが未生成の動画は120x90のプレースホルダーが返るため、hqdefaultへ自動フォールバック */
+  document.querySelectorAll('.film img[data-yid]').forEach(img=>{
+    img.addEventListener('load',function(){
+      if(this.dataset.hasThumb==='0' && this.naturalWidth===120 && this.naturalHeight===90){
+        this.src=`https://i.ytimg.com/vi/${this.dataset.yid}/hqdefault.jpg`;
+      }
+    });
   });
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.14});
   document.querySelectorAll('.film').forEach((f,i)=>{f.style.transitionDelay=(i%2)*65+'ms';io.observe(f)});
