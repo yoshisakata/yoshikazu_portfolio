@@ -33,22 +33,18 @@
   .burger{display:none;position:relative;z-index:60;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:4px}
   .burger span{width:22px;height:1px;background:var(--ink);display:block;transition:.4s var(--ease)}
 
-  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,2.4vw,46px) clamp(14px,1.8vw,30px);
-    grid-auto-flow:dense;padding:clamp(28px,4.5vw,52px) var(--gutter) 0}
-  @media(max-width:880px){.grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:540px){.grid{grid-template-columns:repeat(2,1fr);gap:10px 8px;padding-left:14px;padding-right:14px}}
-  .item{opacity:0;transform:translateY(20px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+  .grid{display:block;column-count:3;column-gap:clamp(14px,1.8vw,30px);
+    padding:clamp(28px,4.5vw,52px) var(--gutter) 0}
+  @media(max-width:880px){.grid{column-count:2}}
+  @media(max-width:540px){.grid{column-count:2;column-gap:8px;padding-left:14px;padding-right:14px}}
+  .item{opacity:0;transform:translateY(20px);transition:opacity 1s var(--ease),transform 1s var(--ease);
+    display:inline-block;width:100%;break-inside:avoid;margin:0 0 clamp(14px,1.8vw,30px)}
   .item.in{opacity:1;transform:none}
-  .item.wide{grid-column:span 2}
   .item .ph{position:relative;overflow:hidden;background:var(--frame)}
-  .item .ph::before{content:"";display:block;padding-top:125%}
-  .item.wide .ph::before{padding-top:62.5%}
-  .item .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.5s var(--ease)}
+  .item .ph img{position:static;width:100%;height:auto;display:block;transition:transform 1.5s var(--ease)}
   @media(max-width:540px){
-    .grid{display:block;column-count:2;column-gap:8px;padding-left:14px;padding-right:14px}
-    .item{display:inline-block;width:100%;break-inside:avoid;margin:0 0 8px}
-    .item .ph::before{content:none}
-    .item .ph img{position:static;width:100%;height:auto;display:block}
+    .grid{column-gap:8px}
+    .item{margin:0 0 8px}
   }
   .item:hover .ph img{transform:scale(1.03)}
   .item .ph .mk{position:absolute;left:14px;top:13px;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(22,21,19,.26)}
@@ -212,7 +208,7 @@
   }
   const g=document.getElementById('work');
   shuffle(works).forEach((w,i)=>{
-    const el=document.createElement('div');el.className='item'+(w.wide?' wide':'');
+    const el=document.createElement('div');el.className='item';
     const tone=tones[i%tones.length];
     const inner=w.img?`<img src="${w.img}" alt="${w.t||''}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
     el.innerHTML=`<div class="ph" style="${w.img?'':`background:${tone}`}">${inner}</div>`;
