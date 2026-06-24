@@ -38,12 +38,6 @@
 
   /* ---------- showreel ---------- */
   .reel{position:relative;width:100%;background:#0e0d0b}
-  .reel-mute{position:absolute;right:clamp(12px,2vw,24px);bottom:clamp(12px,2vw,24px);z-index:3;
-    background:none;border:1px solid rgba(255,255,255,.45);border-radius:50%;
-    width:36px;height:36px;display:flex;align-items:center;justify-content:center;
-    cursor:pointer;color:#fff;opacity:.75;transition:opacity .3s var(--ease);padding:0}
-  .reel-mute:hover{opacity:1}
-  .reel-mute svg{width:15px;height:15px;fill:currentColor}
   .reel::before{content:"";display:block;padding-top:56.25%}
   .reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .reel .veil{position:absolute;inset:0;pointer-events:none;
@@ -139,12 +133,6 @@
            autoplay loop muted playsinline></video>
     <div class="veil"></div>
     <p class="statement">Observing Light, Space and Human Stories</p>
-    <button class="reel-mute" id="reelMute" aria-label="ミュート切り替え">
-      <!-- ミュート中アイコン(スピーカーに×) -->
-      <svg id="iconMuted" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-      <!-- 音あり中アイコン(スピーカー+波) -->
-      <svg id="iconSound" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>
-    </button>
   </section>
 
   <div class="sec-head">
@@ -166,23 +154,6 @@
   <div class="vwrap" id="vwrap"></div>
 </div>
 
-<script>
-  /* ---- ヒーロー動画: ミュート切り替え ---- */
-  (function(){
-    const video=document.getElementById('reelVideo');
-    const muteBtn=document.getElementById('reelMute');
-    const iconMuted=document.getElementById('iconMuted');
-    const iconSound=document.getElementById('iconSound');
-    let muted=true;
-    muteBtn.addEventListener('click',()=>{
-      muted=!muted;
-      video.muted=muted;
-      iconMuted.style.display=muted?'':'none';
-      iconSound.style.display=muted?'none':'';
-      muteBtn.setAttribute('aria-label',muted?'音を出す':'ミュートにする');
-    });
-  })();
-</script>
 <script>
 
   /* 作品動画リスト。新しい作品は配列の先頭に追加。
