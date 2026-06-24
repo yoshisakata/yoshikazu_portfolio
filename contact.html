@@ -35,7 +35,11 @@
 
   .wrap{max-width:640px;margin:0 auto;padding:clamp(64px,10vh,110px) var(--gutter) clamp(70px,10vh,110px)}
   .lbl{font-size:10.5px;letter-spacing:.4em;text-transform:uppercase;color:var(--muted)}
-  .intro{font-family:var(--jp);font-weight:300;font-size:13.5px;line-height:2.1;color:var(--ink);margin-top:22px;max-width:42ch}
+  .intro{font-family:var(--jp);font-weight:300;font-size:12.5px;line-height:2.2;color:var(--ink);margin-top:22px;max-width:100%}
+  .intro .intro-l2{display:inline}
+  @media(max-width:680px){
+    .intro .intro-l2{display:block}
+  }
 
   form{margin-top:clamp(44px,7vw,64px)}
   .field{margin-top:30px}
@@ -55,6 +59,8 @@
     transition:background .35s var(--ease),color .35s var(--ease)}
   .submit:hover{background:var(--ink);color:var(--paper)}
   .sent{margin-top:20px;font-family:var(--jp);font-size:12.5px;color:var(--muted);display:none}
+  .sent.error{color:#b5564a}
+  .submit:disabled{opacity:.6;cursor:default}
   .sent.show{display:block}
 
   footer{padding:clamp(50px,8vw,90px) var(--gutter) 36px;display:flex;flex-direction:column;align-items:center;gap:22px;
@@ -100,7 +106,7 @@
 <main>
   <div class="wrap">
     <span class="lbl">Contact</span>
-    <p class="intro">撮影のご依頼やご相談がございましたら、以下のフォームよりお気軽にお問い合わせください。</p>
+    <p class="intro"><span class="intro-l1">ご依頼やご相談がございましたら、</span><span class="intro-l2">以下のフォームよりお気軽にお問い合わせください。</span></p>
 
     <form id="inquiry">
       <div class="field">
@@ -123,8 +129,9 @@
         <textarea id="f-notes" name="notes"></textarea>
       </div>
 
-      <button type="submit" class="submit">送信</button>
-      <p class="sent" id="sent">メールアプリが開きます。内容をご確認のうえ送信してください。</p>
+      <button type="submit" class="submit" id="submitBtn">送信</button>
+      <p class="sent" id="sent">お問い合わせを受け付けました。ありがとうございます。</p>
+      <p class="sent error" id="errorMsg">送信に失敗しました。お手数ですが時間をおいて再度お試しください。</p>
     </form>
   </div>
 
@@ -138,30 +145,40 @@
 </main>
 
 <script>
-  /* 静的サイトのためサーバーへの送信機能はありません。
-     送信時に内容をまとめてメールアプリ(mailto)を開く形にしています。
-     宛先を変える場合は MAIL_TO を書き換えてください。 */
-  const MAIL_TO = "sumrad41@gmail.com";
+  /* Formspree経由でフォーム送信(ページ遷移なし、ボタン一つで完結) */
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xrevnvzz";
 
-  document.getElementById('inquiry').addEventListener('submit', function(e){
+  const form = document.getElementById('inquiry');
+  const submitBtn = document.getElementById('submitBtn');
+  const sentMsg = document.getElementById('sent');
+  const errorMsg = document.getElementById('errorMsg');
+
+  form.addEventListener('submit', async function(e){
     e.preventDefault();
-    const f = e.target;
-    const name = f.name.value.trim();
-    const email = f.email.value.trim();
-    const project = f.project.value.trim();
-    const notes = f.notes.value.trim();
+    sentMsg.classList.remove('show');
+    errorMsg.classList.remove('show');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '送信中…';
 
-    const subject = `ご相談・お問い合わせ — ${name} 様`;
-    const body =
-      `お名前: ${name}\n` +
-      `メールアドレス: ${email}\n\n` +
-      `ご依頼内容:\n${project}\n\n` +
-      `その他のご要望:\n${notes || "(なし)"}`;
-
-    window.location.href =
-      `mailto:${MAIL_TO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-    document.getElementById('sent').classList.add('show');
+    try{
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      if(res.ok){
+        sentMsg.classList.add('show');
+        form.reset();
+        submitBtn.textContent = '送信';
+      }else{
+        throw new Error('送信エラー');
+      }
+    }catch(err){
+      errorMsg.classList.add('show');
+      submitBtn.textContent = '送信';
+    }finally{
+      submitBtn.disabled = false;
+    }
   });
 
   const b=document.getElementById('burger');

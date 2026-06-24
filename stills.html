@@ -77,29 +77,32 @@
   .item .ph{cursor:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="white" stroke-width="1.2" opacity="0.9"/><line x1="20" y1="14" x2="20" y2="26" stroke="white" stroke-width="1.2" opacity="0.9"/><line x1="14" y1="20" x2="26" y2="20" stroke="white" stroke-width="1.2" opacity="0.9"/></svg>') 20 20, zoom-in}
   .lightbox{position:fixed;inset:0;z-index:100;background:rgba(22,21,19,.96);
     display:flex;align-items:center;justify-content:center;overflow:hidden;
-    opacity:0;visibility:hidden;transition:opacity .4s var(--ease);padding:clamp(16px,4vw,48px)}
+    opacity:0;visibility:hidden;transition:opacity .4s var(--ease);padding:clamp(16px,4vw,48px);
+    touch-action:none}
   .lightbox.open{opacity:1;visibility:visible}
-  .lb-track{display:flex;width:100%;height:100%;will-change:transform}
+  .lb-track{display:flex;width:100%;height:100%;will-change:transform;touch-action:none}
   .lb-track.anim{transition:transform .4s var(--ease)}
   .lb-slide{flex:0 0 100%;display:flex;align-items:center;justify-content:center;height:100%}
   .lightbox img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;
     box-shadow:0 20px 60px rgba(0,0,0,.4);
-    opacity:0;transform:scale(.97);transition:opacity .35s var(--ease),transform .35s var(--ease);
-    touch-action:pan-y; user-select:none; -webkit-user-drag:none; pointer-events:none}
-  .lightbox.open .lb-slide.current img{opacity:1;transform:none}
+    opacity:0;transition:opacity .35s var(--ease);
+    user-select:none; -webkit-user-drag:none; pointer-events:none}
+  .lb-slide.current img{transform:scale(.97);transition:opacity .35s var(--ease),transform .35s var(--ease)}
+  .lightbox.open .lb-slide img{opacity:1}
+  .lightbox.open .lb-slide.current img{transform:none}
   .lb-close,.lb-prev,.lb-next{position:fixed;background:none;border:0;cursor:pointer;color:#FCFCFA;
     opacity:.7;transition:opacity .25s var(--ease);
     display:flex;align-items:center;justify-content:center}
   .lb-close:hover,.lb-prev:hover,.lb-next:hover{opacity:1}
   .lb-close{top:0;right:0;width:clamp(56px,8vw,76px);height:clamp(56px,8vw,76px);z-index:102}
   .lb-close svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.4}
-  .lb-prev,.lb-next{top:clamp(56px,8vw,76px);height:calc(100% - clamp(56px,8vw,76px));width:clamp(72px,12vw,140px);z-index:101}
+  .lb-prev,.lb-next{top:clamp(56px,8vw,76px);height:calc(100% - clamp(56px,8vw,76px));width:clamp(96px,18vw,200px);z-index:101}
   .lb-prev{left:0;justify-content:flex-start;padding-left:clamp(8px,2vw,24px)}
   .lb-next{right:0;justify-content:flex-end;padding-right:clamp(8px,2vw,24px)}
   .lb-prev svg,.lb-next svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.2}
   @media(max-width:680px){
     .lb-close{width:56px;height:56px}
-    .lb-prev,.lb-next{top:56px;height:calc(100% - 56px);width:clamp(56px,18vw,90px)}
+    .lb-prev,.lb-next{top:56px;height:calc(100% - 56px);width:clamp(72px,28vw,130px)}
     .lb-prev{padding-left:6px}
     .lb-next{padding-right:6px}
     .lb-prev svg,.lb-next svg{width:24px;height:24px}
@@ -147,97 +150,97 @@
 
 <script>
   const works=[
-    {img:"photos/25-09-26341.jpg", wide:true},
-    {img:"photos/25-09-26343.jpg", wide:true},
-    {img:"photos/25-09-26383.jpg", wide:true},
-    {img:"photos/25-09-26385.jpg", wide:true},
-    {img:"photos/25-09-26390.jpg", wide:true},
-    {img:"photos/25-09-26393.jpg", wide:true},
-    {img:"photos/25-09-26420.jpg", wide:true},
-    {img:"photos/25-09-26442.jpg"},
-    {img:"photos/25-09-26495.jpg", wide:true},
-    {img:"photos/25-09-26496.jpg"},
-    {img:"photos/25-09-26546.jpg", wide:true},
-    {img:"photos/25-09-26557.jpg", wide:true},
-    {img:"photos/25-09-26558.jpg"},
-    {img:"photos/25-09-26563.jpg"},
-    {img:"photos/25-09-26566.jpg", wide:true},
-    {img:"photos/25-09-26568.jpg", wide:true},
-    {img:"photos/25-09-26583.jpg", wide:true},
-    {img:"photos/25-10-271007.jpg", wide:true},
-    {img:"photos/25-10-271331.jpg", wide:true},
-    {img:"photos/25-10-271589.jpg", wide:true},
-    {img:"photos/25-10-27551.jpg", wide:true},
-    {img:"photos/25-10-27627.jpg"},
-    {img:"photos/25-10-27638.jpg"},
-    {img:"photos/25-10-27658.jpg"},
-    {img:"photos/25-10-27681.jpg", wide:true},
-    {img:"photos/25-10-27691.jpg", wide:true},
-    {img:"photos/25-10-27745.jpg", wide:true},
-    {img:"photos/25-10-27760.jpg", wide:true},
-    {img:"photos/25-10-27766.jpg", wide:true},
-    {img:"photos/25-12-091693.jpg"},
-    {img:"photos/25-12-091723.jpg", wide:true},
-    {img:"photos/250616_372.jpg", wide:true},
-    {img:"photos/250616_394.jpg", wide:true},
-    {img:"photos/250616_478.jpg", wide:true},
-    {img:"photos/250616_508.jpg"},
-    {img:"photos/250616_590.jpg"},
-    {img:"photos/250616_603.jpg"},
-    {img:"photos/250616_650.jpg", wide:true},
-    {img:"photos/26-02-112941.jpg"},
-    {img:"photos/26-03-052435.jpg"},
-    {img:"photos/26-03-052584.jpg", wide:true},
-    {img:"photos/26-03-052637.jpg", wide:true},
-    {img:"photos/26-03-052807.jpg"},
-    {img:"photos/26-03-052888.jpg", wide:true},
-    {img:"photos/26-03-052952.jpg"},
-    {img:"photos/26-03-133213.jpg"},
-    {img:"photos/26-03-133230.jpg"},
-    {img:"photos/26-03-133239.jpg", wide:true},
-    {img:"photos/26-03-133265.jpg"},
-    {img:"photos/26-03-133388.jpg"},
-    {img:"photos/26-03-133664.jpg"},
-    {img:"photos/26-03-193740.jpg"},
-    {img:"photos/26-03-194166.jpg", wide:true},
-    {img:"photos/26-03-194310.jpg", wide:true},
-    {img:"photos/DSC_7455.jpg", wide:true},
-    {img:"photos/DSC_7473.jpg"},
-    {img:"photos/DSCF-105.jpg", wide:true},
-    {img:"photos/DSCF-109.jpg", wide:true},
-    {img:"photos/DSCF-111.jpg", wide:true},
-    {img:"photos/DSCF-112.jpg", wide:true},
-    {img:"photos/DSCF-249.jpg"},
-    {img:"photos/DSCF-414.jpg"},
-    {img:"photos/DSCF0024.jpg", wide:true},
-    {img:"photos/DSCF0199.jpg", wide:true},
-    {img:"photos/DSCF0222.jpg", wide:true},
-    {img:"photos/DSCF1787.jpg"},
-    {img:"photos/DSCF2034.jpg", wide:true},
-    {img:"photos/DSCF2403.jpg", wide:true},
-    {img:"photos/DSCF2492.jpg"},
-    {img:"photos/DSCF2586.jpg"},
-    {img:"photos/DSCF2610.jpg"},
-    {img:"photos/DSCF2886.jpg", wide:true},
-    {img:"photos/DSCF5892.jpg"},
-    {img:"photos/DSCF6041.jpg", wide:true},
-    {img:"photos/DSCF7184.jpg"},
-    {img:"photos/DSCF7355.jpg"},
-    {img:"photos/DSCF7361.jpg"},
-    {img:"photos/DSCF7712.jpg"},
-    {img:"photos/DSCF7798.jpg"},
-    {img:"photos/DSCF7800.jpg"},
-    {img:"photos/DSCF8613.jpg"},
-    {img:"photos/DSCF9040.jpg", wide:true},
-    {img:"photos/DSCF9149.jpg", wide:true},
-    {img:"photos/DSCF9237.jpg"},
-    {img:"photos/DSCF9265.jpg"},
-    {img:"photos/DSCF9806.jpg"},
-    {img:"photos/DSCF9839.jpg"},
-    {img:"photos/house_exterior.jpg", wide:true},
-    {img:"photos/XT508402.jpg"},
-    {img:"photos/XT508423.jpg"},
-    {img:"photos/XT508457.jpg"}
+    {img:"photos/25-09-26341.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26343.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26383.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26385.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26390.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26393.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26420.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26442.jpg", w:1800, h:2400},
+    {img:"photos/25-09-26495.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26496.jpg", w:1800, h:2400},
+    {img:"photos/25-09-26546.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26557.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26558.jpg", w:1800, h:2400},
+    {img:"photos/25-09-26563.jpg", w:1800, h:2400},
+    {img:"photos/25-09-26566.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26568.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-09-26583.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-271007.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-271331.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-271589.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-27551.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-27627.jpg", w:1800, h:2400},
+    {img:"photos/25-10-27638.jpg", w:1800, h:2400},
+    {img:"photos/25-10-27658.jpg", w:1800, h:2400},
+    {img:"photos/25-10-27681.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-27691.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-27745.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-27760.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-10-27766.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/25-12-091693.jpg", w:1800, h:2400},
+    {img:"photos/25-12-091723.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/250616_372.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/250616_394.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/250616_478.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/250616_508.jpg", w:1800, h:2400},
+    {img:"photos/250616_590.jpg", w:1800, h:2400},
+    {img:"photos/250616_603.jpg", w:1800, h:2400},
+    {img:"photos/250616_650.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/26-02-112941.jpg", w:1600, h:2400},
+    {img:"photos/26-03-052435.jpg", w:1600, h:2400},
+    {img:"photos/26-03-052584.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/26-03-052637.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/26-03-052807.jpg", w:1600, h:2400},
+    {img:"photos/26-03-052888.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/26-03-052952.jpg", w:1600, h:2400},
+    {img:"photos/26-03-133213.jpg", w:1600, h:2400},
+    {img:"photos/26-03-133230.jpg", w:1600, h:2400},
+    {img:"photos/26-03-133239.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/26-03-133265.jpg", w:1600, h:2400},
+    {img:"photos/26-03-133388.jpg", w:1600, h:2400},
+    {img:"photos/26-03-133664.jpg", w:1600, h:2400},
+    {img:"photos/26-03-193740.jpg", w:1600, h:2400},
+    {img:"photos/26-03-194166.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/26-03-194310.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSC_7455.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSC_7473.jpg", w:1600, h:2400},
+    {img:"photos/DSCF-105.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSCF-109.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSCF-111.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSCF-112.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSCF-249.jpg", w:1600, h:2400},
+    {img:"photos/DSCF-414.jpg", w:1600, h:2400},
+    {img:"photos/DSCF0024.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSCF0199.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSCF0222.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/DSCF1787.jpg", w:1800, h:2400},
+    {img:"photos/DSCF2034.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/DSCF2403.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/DSCF2492.jpg", w:1800, h:2400},
+    {img:"photos/DSCF2586.jpg", w:1800, h:2400},
+    {img:"photos/DSCF2610.jpg", w:1800, h:2400},
+    {img:"photos/DSCF2886.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/DSCF5892.jpg", w:1800, h:2400},
+    {img:"photos/DSCF6041.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/DSCF7184.jpg", w:1800, h:2400},
+    {img:"photos/DSCF7355.jpg", w:1800, h:2400},
+    {img:"photos/DSCF7361.jpg", w:1800, h:2400},
+    {img:"photos/DSCF7712.jpg", w:1800, h:2400},
+    {img:"photos/DSCF7798.jpg", w:1800, h:2400},
+    {img:"photos/DSCF7800.jpg", w:1800, h:2400},
+    {img:"photos/DSCF8613.jpg", w:1800, h:2400},
+    {img:"photos/DSCF9040.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/DSCF9149.jpg", w:2400, h:1800, wide:true},
+    {img:"photos/DSCF9237.jpg", w:1800, h:2400},
+    {img:"photos/DSCF9265.jpg", w:1800, h:2400},
+    {img:"photos/DSCF9806.jpg", w:1800, h:2400},
+    {img:"photos/DSCF9839.jpg", w:1800, h:2400},
+    {img:"photos/house_exterior.jpg", w:2400, h:1600, wide:true},
+    {img:"photos/XT508402.jpg", w:1800, h:2400},
+    {img:"photos/XT508423.jpg", w:1800, h:2400},
+    {img:"photos/XT508457.jpg", w:1800, h:2400}
   ];
   const tones=["#E6E3DC","#DFE0DB","#E7DFD7","#DEDCE2","#E4E0D6","#DBDFDC","#E9E4DB","#E0DCD4"];
   /* 開くたびに並びをシャッフル */
@@ -255,7 +258,8 @@
   displayed.forEach((w,i)=>{
     const el=document.createElement('div');el.className='item';
     const tone=tones[i%tones.length];
-    const inner=w.img?`<img src="${w.img}" alt="${w.t||''}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
+    const ratio=w.w&&w.h?`style="aspect-ratio:${w.w}/${w.h}"`:'';
+    const inner=w.img?`<img src="${w.img}" alt="${w.t||''}" width="${w.w||800}" height="${w.h||1000}" loading="lazy" ${ratio}>`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
     el.innerHTML=`<div class="ph" style="${w.img?'':`background:${tone}`}">${inner}</div>`;
     if(w.img){
       const lbIndex=imgList.indexOf(w.img);
@@ -290,16 +294,26 @@
     showLb(i);
     lb.classList.add('open');
     document.body.style.overflow='hidden';
-    setTrackX(-lb.clientWidth,false);
+    setTrackX(-track.clientWidth,false);
   }
   function closeLightbox(){
     lb.classList.remove('open');
     document.body.style.overflow='';
   }
+  let justDragged=false; // ドラッグ直後は矢印ボタンのclickを抑制するためのフラグ
   document.getElementById('lbClose').addEventListener('click',closeLightbox);
-  document.getElementById('lbPrev').addEventListener('click',e=>{e.stopPropagation();showLb(lbIndex-1)});
-  document.getElementById('lbNext').addEventListener('click',e=>{e.stopPropagation();showLb(lbIndex+1)});
-  lb.addEventListener('click',e=>{ if(e.target===lb) closeLightbox(); });
+  document.getElementById('lbPrev').addEventListener('click',e=>{ e.stopPropagation(); if(justDragged){justDragged=false;return;} showLb(lbIndex-1); });
+  document.getElementById('lbNext').addEventListener('click',e=>{ e.stopPropagation(); if(justDragged){justDragged=false;return;} showLb(lbIndex+1); });
+  lb.addEventListener('click',e=>{
+    if(justDragged){ justDragged=false; return; } // ドラッグ直後の余白クリックは閉じない
+    const isButton=e.target.closest('.lb-close,.lb-prev,.lb-next');
+    if(isButton) return; // ボタン操作はそれぞれのハンドラに任せる
+    // 現在表示中の写真の実際の表示矩形(object-fit:containで余白ができている分は含まない)内かどうかで判定。
+    // 矩形の外側(写真の周囲の余白・背景)をクリックした場合のみ閉じる。
+    const r=imgCur.getBoundingClientRect();
+    const inside=e.clientX>=r.left && e.clientX<=r.right && e.clientY>=r.top && e.clientY<=r.bottom;
+    if(!inside) closeLightbox();
+  });
   document.addEventListener('keydown',e=>{
     if(!lb.classList.contains('open')) return;
     if(e.key==='Escape') closeLightbox();
@@ -307,16 +321,26 @@
     if(e.key==='ArrowRight') showLb(lbIndex+1);
   });
 
-  /* ドラッグ/スワイプ: 指の動きにトラックがリアルタイム追従し、離した位置で次/前へスナップ or 元へ戻る */
-  let dragging=false, dragStartX=0, dragStartY=0, dragDX=0, lockedAxis=null, vw=window.innerWidth;
+  /* ドラッグ/スワイプ: 指の動きにトラックがリアルタイム追従し、離した位置で次/前へスナップ or 元へ戻る
+     矢印ボタン(.lb-prev/.lb-next)の裏側から始まったタッチでも拾えるよう、lightbox全体にイベントをバインドする */
+  let dragging=false, dragStartX=0, dragStartY=0, dragDX=0, lockedAxis=null, cachedSW=0, rafPending=false;
+  function slotWidth(){
+    // .lb-slideは flex:0 0 100% なので、現在のスロット要素自身の実測幅が正の基準値になる
+    return track.children[0].getBoundingClientRect().width;
+  }
   function setTrackX(px,animate){
     track.classList.toggle('anim',!!animate);
     track.style.transform=`translateX(${px}px)`;
   }
   function onDragStart(x,y){
     dragging=true; dragStartX=x; dragStartY=y; dragDX=0; lockedAxis=null;
-    vw=lb.clientWidth;
-    setTrackX(-vw,false); // 中央(current)スロットの位置を基準にする
+    cachedSW=slotWidth(); // ドラッグ中は再計測せずキャッシュして滑らかさを優先
+    setTrackX(-cachedSW,false); // 中央(current)スロットの位置を基準にする
+  }
+  function applyDragFrame(){
+    rafPending=false;
+    if(!dragging) return;
+    setTrackX(-cachedSW+dragDX,false);
   }
   function onDragMove(x,y){
     if(!dragging) return;
@@ -326,38 +350,46 @@
     }
     if(lockedAxis!=='x') return;
     dragDX=dx;
-    setTrackX(-vw+dx,false);
+    if(!rafPending){ rafPending=true; requestAnimationFrame(applyDragFrame); }
     return true; // x方向ドラッグ中であることを呼び出し元に伝える
   }
   function onDragEnd(){
     if(!dragging) return;
     dragging=false;
-    const threshold=Math.max(60,vw*0.18);
+    const sw=cachedSW||slotWidth();
+    const threshold=Math.max(50,sw*0.14);
     if(lockedAxis==='x' && Math.abs(dragDX)>threshold){
+      justDragged=true; // 一定以上動いた場合はタップ(ボタンclick)を抑制
+      setTimeout(()=>{ justDragged=false; },400); // clickが発火しなかった場合に備えて確実にリセット
       const dir=dragDX<0?1:-1; // 左ドラッグ→次へ
       track.classList.add('anim');
-      setTrackX(-vw - dir*vw, true);
-      setTimeout(()=>{ showLb(lbIndex+dir); setTrackX(-vw,false); },380);
+      setTrackX(-sw - dir*sw, true);
+      setTimeout(()=>{ showLb(lbIndex+dir); setTrackX(-slotWidth(),false); },320);
+    }else if(lockedAxis==='x' && Math.abs(dragDX)>10){
+      justDragged=true; // 閾値未満でも軽く動いた場合はclickと衝突しないよう抑制してスナップバックのみ
+      setTimeout(()=>{ justDragged=false; },400); // clickが発火しなかった場合に備えて確実にリセット
+      setTrackX(-sw,true);
     }else{
-      setTrackX(-vw,true); // 元の位置にスナップバック
+      setTrackX(-sw,true); // ほぼ動いていない場合はタップ扱い(ボタンclickをそのまま通す)
     }
     lockedAxis=null;
   }
   // マウスドラッグ(デスクトップでも同じ操作感に)
-  track.addEventListener('mousedown',e=>{ onDragStart(e.clientX,e.clientY); e.preventDefault(); });
+  lb.addEventListener('mousedown',e=>{ onDragStart(e.clientX,e.clientY); });
   window.addEventListener('mousemove',e=>{ if(dragging) onDragMove(e.clientX,e.clientY); });
   window.addEventListener('mouseup',()=>{ if(dragging) onDragEnd(); });
-  // タッチ操作
-  track.addEventListener('touchstart',e=>{
+  // タッチ操作(矢印ボタンの裏側から始まっても拾えるようlightbox全体で監視)
+  lb.addEventListener('touchstart',e=>{
     if(!e.touches || e.touches.length!==1) return;
     onDragStart(e.touches[0].clientX,e.touches[0].clientY);
   },{passive:true});
-  track.addEventListener('touchmove',e=>{
+  lb.addEventListener('touchmove',e=>{
     if(!e.touches || e.touches.length!==1) return;
     const lockedX=onDragMove(e.touches[0].clientX,e.touches[0].clientY);
     if(lockedX && e.cancelable) e.preventDefault();
   },{passive:false});
-  track.addEventListener('touchend',()=>{ onDragEnd(); },{passive:true});
+  lb.addEventListener('touchend',()=>{ onDragEnd(); },{passive:true});
+  lb.addEventListener('touchcancel',()=>{ onDragEnd(); },{passive:true});
 </script>
 </body>
 </html>

@@ -33,16 +33,18 @@
   .burger{display:none;position:relative;z-index:60;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:4px}
   .burger span{width:22px;height:1px;background:var(--ink);display:block;transition:.4s var(--ease)}
 
-  .about{display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(40px,7vw,110px);align-items:center;
+  .about{display:grid;grid-template-columns:0.8fr 1.3fr;gap:clamp(40px,7vw,110px);align-items:center;
     max-width:1120px;margin:0 auto;padding:clamp(70px,11vh,140px) var(--gutter) clamp(60px,10vh,120px)}
   @media(max-width:860px){.about{grid-template-columns:1fr;gap:46px}}
-  .portrait{position:relative;background:var(--frame);aspect-ratio:4/5;overflow:hidden}
+  .portrait{position:relative;background:var(--frame);aspect-ratio:3/2;overflow:hidden}
   .portrait .mk{position:absolute;left:14px;top:13px;font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:rgba(22,21,19,.3)}
   .portrait img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .bio .lbl{font-size:10.5px;letter-spacing:.34em;text-transform:uppercase;color:var(--muted)}
   .bio .name{font-size:15px;font-weight:300;letter-spacing:.05em;color:var(--ink);margin-top:18px}
   .bio .loc{font-size:11.5px;letter-spacing:.1em;color:var(--muted);margin-top:10px}
   .bio .lead{font-family:var(--jp);font-weight:300;font-size:clamp(14.5px,1.7vw,17px);line-height:2.15;letter-spacing:.04em;margin-top:28px}
+  .bio .lead .lead-l2{display:block}
+  @media(max-width:680px){.bio .lead{font-size:13.5px}}
   .bio p{font-family:var(--jp);font-weight:300;font-size:13.5px;line-height:2.35;color:var(--ink);margin-top:26px;max-width:46ch}
   .bio dl{display:flex;flex-wrap:wrap;gap:20px 50px;margin-top:46px;padding-top:32px;border-top:1px solid var(--line)}
   .bio dt{font-size:9px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
@@ -90,12 +92,12 @@
 
 <main>
   <section class="about">
-    <div class="portrait"><span class="mk">Portrait — replace</span></div>
+    <div class="portrait"><img src="photos/portrait.jpg" alt="Yoshikazu Sakata"></div>
     <div class="bio">
       <span class="lbl">About</span>
       <h2 class="name">Yoshikazu Sakata</h2>
       <p class="loc">Based in Osaka, Japan</p>
-      <p class="lead">過去から受け継がれてきた価値を大切にしながら、新しい表現を探しています。</p>
+      <p class="lead"><span class="lead-l1">過去に学びながら、新しい表現を探しています。</span><span class="lead-l2">見えないものを映したい。</span></p>
     </div>
   </section>
 
