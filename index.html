@@ -11,7 +11,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@300;400&display=swap" rel="stylesheet">
-<script src="https://player.vimeo.com/api/player.js"></script>
 <style>
   :root{
     --paper:#FCFCFA;--ink:#161513;--muted:#9C988F;--line:#E8E5DE;--frame:#F0EEE8;
@@ -38,7 +37,7 @@
   .burger span{width:22px;height:1px;background:var(--ink);display:block;transition:.4s var(--ease)}
 
   /* ---------- showreel ---------- */
-  .reel{position:relative;width:100%;background:#0e0d0b;will-change:transform}
+  .reel{position:relative;width:100%;background:#0e0d0b}
   .reel-mute{position:absolute;right:clamp(12px,2vw,24px);bottom:clamp(12px,2vw,24px);z-index:3;
     background:none;border:1px solid rgba(255,255,255,.45);border-radius:50%;
     width:36px;height:36px;display:flex;align-items:center;justify-content:center;
@@ -46,8 +45,7 @@
   .reel-mute:hover{opacity:1}
   .reel-mute svg{width:15px;height:15px;fill:currentColor}
   .reel::before{content:"";display:block;padding-top:56.25%}
-  .reel iframe{position:absolute;inset:0;width:100%;height:100%;border:0;transform:translateZ(0)}
-  .reel.playing iframe{opacity:1}
+  .reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .reel .veil{position:absolute;inset:0;pointer-events:none;
     background:linear-gradient(180deg,rgba(8,7,5,.22),rgba(8,7,5,0) 38%,rgba(8,7,5,.4) 100%)}
   .reel .statement{position:absolute;left:50%;bottom:clamp(22px,5vw,48px);transform:translateX(-50%);
@@ -137,8 +135,8 @@
 
 <main>
   <section class="reel" id="reel">
-    <iframe id="reelFrame" src="https://player.vimeo.com/video/1184541132?background=1&autoplay=1&loop=1&muted=1&dnt=1"
-            allow="autoplay; fullscreen" title="Showreel 2026"></iframe>
+    <video id="reelVideo" src="https://pub-e80f77a891d84e83ad3035613393f09a.r2.dev/hero.mp4"
+           autoplay loop muted playsinline></video>
     <div class="veil"></div>
     <p class="statement">Observing Light, Space and Human Stories</p>
     <button class="reel-mute" id="reelMute" aria-label="ミュート切り替え">
@@ -169,27 +167,20 @@
 </div>
 
 <script>
-  /* ---- ヒーロー動画: ループ保険 + ミュート切り替え ---- */
+  /* ---- ヒーロー動画: ミュート切り替え ---- */
   (function(){
-    const frame=document.getElementById('reelFrame');
+    const video=document.getElementById('reelVideo');
     const muteBtn=document.getElementById('reelMute');
     const iconMuted=document.getElementById('iconMuted');
     const iconSound=document.getElementById('iconSound');
-    if(window.Vimeo && window.Vimeo.Player){
-      const player=new Vimeo.Player(frame);
-      player.on('ended',()=>{ player.play(); });
-      let muted=true;
-      muteBtn.addEventListener('click',()=>{
-        muted=!muted;
-        player.setVolume(muted?0:1);
-        iconMuted.style.display=muted?'':'none';
-        iconSound.style.display=muted?'none':'';
-        muteBtn.setAttribute('aria-label',muted?'音を出す':'ミュートにする');
-      });
-    }else{
-      // Vimeo Player SDKが使えない場合はボタンを非表示
-      muteBtn.style.display='none';
-    }
+    let muted=true;
+    muteBtn.addEventListener('click',()=>{
+      muted=!muted;
+      video.muted=muted;
+      iconMuted.style.display=muted?'':'none';
+      iconSound.style.display=muted?'none':'';
+      muteBtn.setAttribute('aria-label',muted?'音を出す':'ミュートにする');
+    });
   })();
 </script>
 <script>
