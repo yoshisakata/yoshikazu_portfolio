@@ -45,7 +45,7 @@
     margin:0;padding:0 18px;text-align:center;white-space:nowrap;z-index:2;
     color:#fdfcfa;font-size:clamp(13px,1.8vw,18px);font-weight:300;letter-spacing:.14em;
     text-shadow:0 1px 14px rgba(0,0,0,.4)}
-  @media(max-width:680px){.reel .statement{white-space:normal;letter-spacing:.06em;font-size:10.5px;line-height:1.85;bottom:18px}}
+  @media(max-width:680px){.reel .statement{white-space:normal;letter-spacing:.06em;font-size:10.5px;line-height:1.55;bottom:10px}}
   /* ---------- films grid ---------- */
   .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;flex-wrap:wrap;
     padding:clamp(50px,7vw,92px) var(--gutter) clamp(28px,4vw,46px)}
@@ -165,28 +165,39 @@
 </script>
 <script>
 
-  /* 各作品の YouTube動画IDに差し替え(限定公開でOK)。thumb:"https://.../cover.jpg" でサムネ上書き可
-     ★追加順:新しい作品はこの配列の先頭に追加してください → 一番上(左上)に表示されます
-     youtube: "動画ID" のみ指定(例: "dQw4w9WgXcQ")。URLまるごとではなくIDだけでOK */
+  /* 作品動画リスト。新しい作品は配列の先頭に追加。
+     表示順はページ読み込みのたびにランダムにシャッフルされます。
+     youtube: 動画ID のみ(URLではなくIDだけ)。thumb で任意のサムネ画像URLを指定可。 */
   const films=[
-    {t:"岡谷工務店 — Brand Film",  c:"Commercial", youtube:"REPLACE_ID1"},
-    {t:"Rokkosan Wedding",        c:"Wedding",    youtube:"REPLACE_ID2"},
-    {t:"Within the Light",        c:"Short Film", youtube:"REPLACE_ID3"},
-    {t:"Shop — Story",            c:"Commercial", youtube:"REPLACE_ID4"},
-    {t:"Reception — Document",    c:"Wedding",    youtube:"REPLACE_ID5"},
-    {t:"Interview",               c:"Commercial", youtube:"REPLACE_ID6"}
+    {t:"Film 1", c:"", youtube:"SXk0Y4EMowU"},
+    {t:"Film 2", c:"", youtube:"mBnladCK65c"},
+    {t:"Film 3", c:"", youtube:"gqrn--sqWUQ"},
+    {t:"Film 4", c:"", youtube:"UDP_OrU4ivI"},
+    {t:"Film 5", c:"", youtube:"6f_vOlGbwsU"},
+    {t:"Film 6", c:"", youtube:"OhOlswaDdQ8"},
+    {t:"Film 7", c:"", youtube:"6QZfTGWb7S0"}
   ];
+  // stills同様、開くたびにランダムな順序で表示
+  function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
   const tones=["#DDE0DB","#E1DBD3","#DADCE1","#E3DED5","#DBE0DD","#E1DDD4"];
   const wrap=document.getElementById('films');
-  films.forEach((f,i)=>{
+  shuffle(films).forEach((f,i)=>{
     const a=document.createElement('div');a.className='film';
     const tone=tones[i%tones.length];
     const thumbUrl=f.thumb||`https://i.ytimg.com/vi/${f.youtube}/maxresdefault.jpg`;
-    const cover=f.youtube?`<img src="${thumbUrl}" alt="${f.t}" data-yid="${f.youtube}" data-has-thumb="${f.thumb?'1':'0'}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
+    const cover=f.youtube?`<img src="${thumbUrl}" alt="" data-yid="${f.youtube}" data-has-thumb="${f.thumb?'1':'0'}">`:`<span class="mk">${String(i+1).padStart(2,'0')}</span>`;
     a.innerHTML=`<div class="thumb" style="${f.youtube?'':`background:${tone}`}">${cover}<div class="play"><i></i></div></div>
-      <div class="cap"><span class="t">${f.t}</span></div>`;
+      <div class="cap"><span class="t" data-yt="${f.youtube}"></span></div>`;
     a.querySelector('.thumb').addEventListener('click',()=>openVideo(f.youtube));
     wrap.appendChild(a);
+  });
+  // YouTube oEmbed APIでタイトルを非同期取得(公開動画のみ取得可、限定公開は空欄になる場合あり)
+  document.querySelectorAll('.cap .t[data-yt]').forEach(el=>{
+    const id=el.dataset.yt;
+    fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`)
+      .then(r=>r.ok?r.json():null)
+      .then(data=>{ if(data && data.title) el.textContent=data.title; })
+      .catch(()=>{});
   });
   /* maxresdefaultが未生成の動画は120x90のプレースホルダーが返るため、hqdefaultへ自動フォールバック */
   document.querySelectorAll('.film img[data-yid]').forEach(img=>{
